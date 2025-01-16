@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2018"],
+    "paths": {
+      "@types": ["../types"]
+    }
+  },
+  "include": ["src/scripts/**/*.ts"],
+  "exclude": ["node_modules"]
+}

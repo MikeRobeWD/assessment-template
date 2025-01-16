@@ -1,0 +1,37 @@
+<div class="header-container">
+  <mat-card appearance="outlined">
+    <div class="cart-container">
+      <button mat-icon-button aria-label="cart" [matMenuTriggerFor]="menu">
+        <mat-icon>shopping_cart</mat-icon>
+        <span class="cart-count" *ngIf="cartVehicles.length > 0">{{
+          cartVehicles.length
+        }}</span>
+      </button>
+      <mat-menu #menu="matMenu" class="cart-menu">
+        <div class="cart-popup">
+          <h3>Cart</h3>
+
+          <mat-divider></mat-divider>
+
+          <ng-container *ngIf="cartVehicles.length > 0; else emptyCart">
+            <mat-list>
+              <mat-list-item *ngFor="let vehicle of cartVehicles">
+                <div class="cart-items">
+                  <h4>{{ vehicle.make }} {{ vehicle.model }}</h4>
+
+                  <button mat-icon-button (click)="removeFromCart(vehicle)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-list-item>
+            </mat-list>
+          </ng-container>
+
+          <ng-template #emptyCart>
+            <p>No items in your cart.</p>
+          </ng-template>
+        </div>
+      </mat-menu>
+    </div>
+  </mat-card>
+</div>

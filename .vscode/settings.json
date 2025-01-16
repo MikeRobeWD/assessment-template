@@ -1,0 +1,10 @@
+{
+	"files.eol": "\n",
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
+	"editor.fontLigatures": true,
+	"editor.tabSize": 4,
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.defaultFormatter": "esbenp.prettier-vscode"
+}

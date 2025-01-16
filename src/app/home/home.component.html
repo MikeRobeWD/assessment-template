@@ -1,0 +1,10 @@
+<div>
+  <h1>Browse Vehicles</h1>
+  <div class="home-content">
+    <app-filters
+      [vehicles]="(vehicles$ | async) ?? []"
+      (filterChanged)="onFilterChanged($event)"
+    ></app-filters>
+    <app-car-list [vehicles]="(filteredVehicles$ | async) ?? []"></app-car-list>
+  </div>
+</div>
