@@ -1,1 +1,32 @@
-<div>Cars</div>
+<div class="car-list">
+  <div *ngIf="filteredVehicles.length > 0; else noVehicles">
+    <div *ngFor="let vehicle of filteredVehicles" class="car-card">
+      <div class="car-image">
+        <img [src]="vehicle.imageUrl" alt="{{ vehicle.model }} image" />
+      </div>
+      <div class="car-details">
+        <h3>{{ vehicle.model }}</h3>
+        <p class="price"><strong>Price:</strong> R {{ vehicle.price }}</p>
+        <p><strong>Make:</strong> {{ vehicle.make }}</p>
+        <p><strong>Body:</strong> {{ vehicle.body }}</p>
+        <p><strong>Model:</strong> {{ vehicle.model }}</p>
+      </div>
+      <div class="button-section">
+        <button mat-button 
+                [disabled]="isInCart[vehicle.id]"
+                (click)="addToCart(vehicle.id)">
+          {{ isInCart[vehicle.id] ? 'Added to Cart' : 'Add to Cart' }}
+        </button>
+        <button mat-button 
+                *ngIf="isInCart[vehicle.id]"
+                (click)="removeFromCart(vehicle.id)">
+          Remove from Cart
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noVehicles>
+    <p>No vehicles available.</p>
+  </ng-template>
+</div>

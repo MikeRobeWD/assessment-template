@@ -1,31 +1,94 @@
+$primary-color: #2c3e50;  
+$secondary-color: #3498db;  
+$accent-color: #2980b9; 
+$background-color: #f0f4f7;  
+$card-background-color: #ffffff; 
+$text-color: #333;  
+$border-radius: 8px;  
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: $background-color;
+  color: $text-color;
+  box-sizing: border-box;
+}
+
+h1 {
+  color: $text-color; 
+  margin: 20px;
+}
+
 .home-content {
   padding: 0 20px;
+  background-color: $background-color;
 
-  @media screen and (min-width: 650px) {
+  @media screen and (min-width: 850px) {
     padding-right: 0;
     display: flex;
-
     gap: 20px;
-    max-height: calc(100vh - 80px - 80px);
+    max-height: calc(100vh - 80px - 80px); 
     overflow-y: hidden;
 
     ::-webkit-scrollbar {
       display: none;
     }
   }
-}
 
-h1 {
-  height: 40px;
-  margin: 20px;
+  @media screen and (min-width: 1200px) {
+    gap: 30px;
+  }
 }
 
 app-filters {
   flex-grow: 0;
+  max-width: 300px;
+  background-color: $card-background-color;
+  padding: 20px;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 1.6rem;
+    color: $primary-color;
+    margin-bottom: 15px;
+  }
+
+  @media screen and (max-width: 650px) {
+    padding: 15px;
+    width: 100%;
+  }
 }
 
 app-car-list {
   flex-grow: 1;
   max-height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: $card-background-color;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  
+  h2 {
+    font-size: 1.8rem;
+    color: $primary-color;
+    margin-bottom: 20px;
+  }
+
+  @media screen and (max-width: 650px) {
+    padding: 10px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .home-content {
+    gap: 30px;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .home-content {
+    gap: 40px;
+  }
 }
