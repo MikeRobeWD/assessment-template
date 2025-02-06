@@ -1,1 +1,132 @@
-// .mat-mdc-form-field {}
+$primary-color: #1a73e8; 
+$background-color: #f8f9fa; 
+$input-border-color: #ccc; 
+$accent-color: #1a73e8; 
+$text-color: #333;
+$reset-btn-bg: #ff5722; 
+$border-radius: 8px; 
+$transition-duration: 0.3s; 
+
+.filters {
+  background-color: $background-color;
+  padding: 20px;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+
+  h2 {
+    font-size: 1.6rem;
+    color: $primary-color;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .filter-item {
+    margin-bottom: 20px;
+
+    label {
+      font-size: 1.1rem;
+      color: $text-color;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid $input-border-color;
+      border-radius: $border-radius;
+      font-size: 1rem;
+      background-color: #fff;
+      color: $text-color;
+      transition: border-color $transition-duration ease;
+
+      &:focus {
+        border-color: $accent-color;
+        outline: none;
+      }
+    }
+  }
+
+  .price-filter {
+    display: flex;
+    flex-direction: column; 
+    gap: 15px; 
+
+    .price-item {
+      label {
+        font-size: 1.1rem;
+        color: $text-color;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid $input-border-color;
+        border-radius: $border-radius;
+        font-size: 1rem;
+        background-color: #fff;
+        color: $text-color;
+        transition: border-color $transition-duration ease;
+
+        &:focus {
+          border-color: $accent-color;
+          outline: none;
+        }
+      }
+    }
+  }
+
+  .reset-filters {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: $border-radius;
+    background-color: $reset-btn-bg;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color $transition-duration ease;
+
+    &:hover {
+      background-color: darken($reset-btn-bg, 10%);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .filters {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .filter-item label,
+  .price-item label {
+    font-size: 1rem;
+  }
+
+  .reset-filters {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (min-width: 651px) and (max-width: 1024px) {
+  .filters {
+    padding: 20px;
+    max-width: 100%;
+  }
+}

@@ -38,7 +38,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   ],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.scss',
-  providers: [HomeService],
 })
 export class NavBarComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -56,26 +55,28 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.cartId$.pipe(
-      filter((cartId) => !!cartId),
-      switchMap(() =>
-        this.homeService.getCart().pipe(
-          map((cart: Cart) => cart.items),
-          switchMap((cartItems: string[]) => {
-            this.cart = cartItems;
-            if (cartItems.length === 0) {
-              this.cartVehicles = [];
-              return [];
-            }
-            return this.homeService.getVehiclesByIds(cartItems);
-          })
-        )
-      ),
-      tap((vehicles) => {
-        this.cartVehicles = vehicles;
-      }),
-      takeUntil(this.destroy$)
-    );
+    this.cartId$
+      .pipe(
+        filter((cartId) => !!cartId),
+        switchMap(() =>
+          this.homeService.getCart().pipe(
+            map((cart: Cart | null) => cart?.items ?? []),
+            switchMap((cartItems: string[]) => {
+              this.cart = cartItems;
+              if (cartItems.length === 0) {
+                this.cartVehicles = [];
+                return [];
+              }
+              return this.homeService.getVehiclesByIds(cartItems);
+            })
+          )
+        ),
+        tap((vehicles) => {
+          this.cartVehicles = vehicles;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -84,27 +85,17 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   async removeFromCart(vehicle: VehicleWithId) {
-    const { id, make, model } = vehicle;
-
     try {
-      await this.homeService.removeFromCart(id);
-
-      this.snackBar.open(
-        `${make} ${model} successfully removed from cart!`,
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      await this.homeService.removeFromCart(vehicle.id);
+      this.snackBar.open(`${vehicle.make} ${vehicle.model} removed from cart!`, 'Close', {
+        duration: 3000,
+      });
+      this.cartVehicles = this.cartVehicles.filter((v) => v.id !== vehicle.id);
     } catch (error) {
-      console.log(error);
-      this.snackBar.open(
-        `An error has occured while adding ${make} ${model} to cart.`,
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      console.error('Error removing vehicle from cart', error);
+      this.snackBar.open(`Error removing ${vehicle.make} ${vehicle.model} from cart.`, 'Close', {
+        duration: 3000,
+      });
     }
   }
 }

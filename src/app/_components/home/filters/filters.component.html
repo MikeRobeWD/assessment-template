@@ -1,1 +1,37 @@
-<div>Filters</div>
+<div class="filters">
+  <h2>Filter Cars</h2>
+  <div class="filter-item">
+    <label for="manufacturer">Manufacturer</label>
+    <select id="manufacturer" [(ngModel)]="selectedManufacturer" (change)="onFilterChange()">
+      <option *ngFor="let option of manufacturerOptions" [value]="option">
+        {{ option }}
+      </option>
+    </select>
+  </div>
+  <div class="filter-item">
+    <label for="body-type">Body Type</label>
+    <select id="body-type" [(ngModel)]="selectedBodyType" (change)="onFilterChange()">
+      <option *ngFor="let option of bodyTypeOptions" [value]="option">
+        {{ option }}
+      </option>
+    </select>
+  </div>
+  <div class="price-filter">
+    <div class="price-item">
+      <label for="min-price">Min Price</label>
+      <select id="min-price" [(ngModel)]="selectedPriceRange.min" (change)="onFilterChange()">
+        <option *ngFor="let option of priceOptions" [value]="option">
+          {{ option | currency:'R ':'symbol':'1.0-0':'en-ZA' }}
+        </option>
+      </select>
+    </div>
+    <div class="price-item">
+      <label for="max-price">Max Price</label>
+      <select id="max-price" [(ngModel)]="selectedPriceRange.max" (change)="onFilterChange()">
+        <option *ngFor="let option of priceOptions" [value]="option">
+          {{ option | currency:'R ':'symbol':'1.0-0':'en-ZA' }}
+        </option>
+      </select>
+    </div>
+  </div>
+</div>

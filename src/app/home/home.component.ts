@@ -14,7 +14,7 @@ import { HomeService } from '../_services/home.service';
 import { HomeModule } from '../_components/home/home.module';
 
 import { SelectedFilters, VehicleWithId } from '@types';
-import { parsePrice } from '@utils';
+
 
 @Component({
   selector: 'app-home',
@@ -22,7 +22,7 @@ import { parsePrice } from '@utils';
   providers: [HomeService],
   imports: [HomeModule, AsyncPipe],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   public vehicles$: Observable<VehicleWithId[]> = from([]);
@@ -30,7 +30,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   public destroy$ = new Subject<void>();
   private filterSubject = new BehaviorSubject<SelectedFilters>({
     manufacturer: 'Any',
+    priceRange: { min: '0', max: '1300000' }, 
   });
+
+  public priceOptions: string[] = Array.from(
+    { length: 14 },
+    (_, i) => (i * 100000).toString()
+  );
 
   constructor(private homeService: HomeService) {}
 
@@ -43,10 +49,31 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.vehicles$,
       this.filterSubject.asObservable(),
     ]).pipe(
-      map(
-        ([vehicles, filters]) => vehicles
-        // this.filterVehicles(vehicles, filters)
-      ),
+      map(([vehicles, filters]) => {
+        let filteredVehicles = vehicles;
+
+        if (filters.manufacturer !== 'Any') {
+          filteredVehicles = filteredVehicles.filter(
+            (vehicle) => vehicle.make === filters.manufacturer
+          );
+        }
+
+        if (filters.bodyType !== 'Any') {
+          filteredVehicles = filteredVehicles.filter(
+            (vehicle) => vehicle.body === filters.bodyType
+          );
+        }
+
+        const minPrice = parseInt(filters.priceRange?.min || '0', 10);
+        const maxPrice = parseInt(filters.priceRange?.max || '1300000', 10);
+
+        filteredVehicles = filteredVehicles.filter((vehicle) => {
+          const vehiclePrice = vehicle.price;
+          return vehiclePrice >= minPrice && vehiclePrice <= maxPrice;
+        });
+
+        return filteredVehicles;
+      }),
       takeUntil(this.destroy$)
     );
   }
