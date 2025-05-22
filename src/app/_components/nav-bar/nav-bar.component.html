@@ -10,25 +10,40 @@
       <mat-menu #menu="matMenu" class="cart-menu">
         <div class="cart-popup">
           <h3>Cart</h3>
-
           <mat-divider></mat-divider>
 
           <ng-container *ngIf="cartVehicles.length > 0; else emptyCart">
             <mat-list>
               <mat-list-item *ngFor="let vehicle of cartVehicles">
-                <div class="cart-items">
-                  <h4>{{ vehicle.make }} {{ vehicle.model }}</h4>
-
-                  <button mat-icon-button (click)="removeFromCart(vehicle)">
-                    <mat-icon>delete</mat-icon>
+                <div class="cart-item">
+                  <div class="cart-item-details">
+                    <h4>{{ vehicle.make }} {{ vehicle.model }}</h4>
+                    <span class="price">R {{ vehicle.price | number }}</span>
+                  </div>
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="removeFromCart(vehicle)"
+                  >
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
               </mat-list-item>
             </mat-list>
+
+            <mat-divider></mat-divider>
+
+            <div class="cart-total">
+              <span>Total:</span>
+              <strong>R {{ calculateTotal() | number }}</strong>
+            </div>
           </ng-container>
 
           <ng-template #emptyCart>
-            <p>No items in your cart.</p>
+            <div class="empty-cart">
+              <mat-icon>shopping_cart</mat-icon>
+              <p>No items in your cart.</p>
+            </div>
           </ng-template>
         </div>
       </mat-menu>

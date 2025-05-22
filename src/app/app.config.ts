@@ -19,6 +19,6 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
     provideStore({ cart: cartReducer }),
-    provideEffects(),
+    provideEffects(), provideAnimationsAsync(),
   ],
 };

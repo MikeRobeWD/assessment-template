@@ -10,11 +10,12 @@ import {
   doc,
   arrayRemove,
   docData,
+  DocumentReference,
 } from '@angular/fire/firestore';
 import { setCartId } from '../_store/cart/cart.actions';
 import { Store } from '@ngrx/store';
-import { combineLatest, Observable } from 'rxjs';
-import { VehicleWithId } from '@types';
+import { combineLatest, Observable, of } from 'rxjs';
+import { Cart, VehicleWithId } from '@types';
 
 @Injectable({ providedIn: 'root' })
 export class HomeService {
@@ -36,18 +37,20 @@ export class HomeService {
     return combineLatest(vehicleObservables);
   }
 
-  getCart() {
+  getCart(): Observable<(Cart & { id: string }) | undefined> {
     const cartId = sessionStorage.getItem('cartId');
 
     if (cartId) {
-      this.store.dispatch(setCartId({ cartId: cartId }));
-
       const cartRef = doc(this.firestore, 'carts', cartId);
-      return docData(cartRef, { idField: 'id' });
+      return docData(cartRef, { idField: 'id' }) as Observable<
+        Cart & { id: string }
+      >;
     }
+
+    return of(undefined);
   }
 
-  async addToCart(vehicleId: string) {
+  async addToCart(vehicleId: string): Promise<DocumentReference> {
     const cartId = sessionStorage.getItem('cartId');
 
     let cartRef;
@@ -58,14 +61,15 @@ export class HomeService {
       });
     } else {
       cartRef = await addDoc(collection(this.firestore, 'carts'), {
-        items: arrayUnion(vehicleId),
+        items: [vehicleId],
         created: serverTimestamp(),
       });
 
       sessionStorage.setItem('cartId', cartRef.id);
+      this.store.dispatch(setCartId({ cartId: cartRef.id }));
     }
 
-    this.store.dispatch(setCartId({ cartId: cartRef.id }));
+    return cartRef;
   }
 
   async removeFromCart(vehicleId: string) {

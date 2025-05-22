@@ -23,6 +23,7 @@ import { selectCartId } from '../../_store/cart/cart.selectors';
 import { AppState } from '../../_store/app.state';
 import { formatToCurrency } from '@utils';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { setCartId } from '../../_store/cart/cart.actions';
 
 @Component({
   selector: 'app-nav-bar',
@@ -46,6 +47,7 @@ export class NavBarComponent implements OnInit, OnDestroy {
   public cart: string[] = [];
   public cartVehicles: VehicleWithId[] = [];
   public formatToCurrency = formatToCurrency;
+  private currentCartId: string | null = null;
 
   constructor(
     private homeService: HomeService,
@@ -56,26 +58,44 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.cartId$.pipe(
-      filter((cartId) => !!cartId),
-      switchMap(() =>
-        this.homeService.getCart().pipe(
-          map((cart: Cart) => cart.items),
-          switchMap((cartItems: string[]) => {
-            this.cart = cartItems;
-            if (cartItems.length === 0) {
-              this.cartVehicles = [];
-              return [];
-            }
-            return this.homeService.getVehiclesByIds(cartItems);
-          })
-        )
-      ),
-      tap((vehicles) => {
-        this.cartVehicles = vehicles;
-      }),
-      takeUntil(this.destroy$)
-    );
+    // Check for existing cart in session storage
+    const existingCartId = sessionStorage.getItem('cartId');
+    if (existingCartId) {
+      this.store.dispatch(setCartId({ cartId: existingCartId }));
+    }
+
+    // Subscribe to cart changes
+    this.cartId$
+      .pipe(
+        filter((cartId): cartId is string => cartId !== null),
+        tap((cartId) => (this.currentCartId = cartId)),
+        switchMap(() =>
+          this.homeService.getCart().pipe(
+            filter((cart): cart is Cart & { id: string } => cart !== undefined),
+            tap((cart) => {
+              // Update session storage if cart ID has changed
+              if (cart.id !== this.currentCartId) {
+                sessionStorage.setItem('cartId', cart.id);
+                this.store.dispatch(setCartId({ cartId: cart.id }));
+              }
+              this.cart = cart.items;
+              if (cart.items.length === 0) {
+                this.cartVehicles = [];
+              }
+            }),
+            switchMap((cart) =>
+              cart.items.length > 0
+                ? this.homeService.getVehiclesByIds(cart.items)
+                : []
+            )
+          )
+        ),
+        tap((vehicles) => {
+          this.cartVehicles = vehicles;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -83,28 +103,26 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  calculateTotal(): number {
+    return this.cartVehicles.reduce(
+      (total, vehicle) => total + vehicle.price,
+      0
+    );
+  }
+
   async removeFromCart(vehicle: VehicleWithId) {
     const { id, make, model } = vehicle;
 
     try {
       await this.homeService.removeFromCart(id);
-
-      this.snackBar.open(
-        `${make} ${model} successfully removed from cart!`,
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      this.snackBar.open(`${make} ${model} removed from cart`, 'Close', {
+        duration: 3000,
+      });
     } catch (error) {
-      console.log(error);
-      this.snackBar.open(
-        `An error has occured while adding ${make} ${model} to cart.`,
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      console.error(error);
+      this.snackBar.open(`Error removing ${make} ${model} from cart`, 'Close', {
+        duration: 3000,
+      });
     }
   }
 }

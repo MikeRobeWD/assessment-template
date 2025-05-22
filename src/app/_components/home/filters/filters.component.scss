@@ -1,1 +1,97 @@
 // .mat-mdc-form-field {}
+
+.filters-container {
+  padding: 2rem;
+  height: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 599px) {
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    margin: 0 0 2rem;
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 500;
+
+    @media (max-width: 599px) {
+      margin: 0 0 1.5rem;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+  }
+
+  mat-form-field {
+    width: 100%;
+    margin-bottom: 1.5rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 599px) {
+      margin-bottom: 1rem;
+    }
+
+    // Increase the size of select dropdowns and inputs
+    ::ng-deep {
+      .mat-mdc-text-field-wrapper {
+        background-color: #fff;
+      }
+
+      .mat-mdc-form-field-flex {
+        padding: 0 12px;
+      }
+
+      .mdc-text-field--outlined {
+        --mdc-outlined-text-field-container-height: 56px;
+      }
+
+      // Fix currency symbol and input spacing
+      .mat-mdc-form-field-prefix {
+        margin-right: 20px;
+        top: 0 !important;
+      }
+
+      // Style for the hint text
+      .mat-mdc-form-field-hint {
+        padding-left: 8px;
+      }
+    }
+  }
+
+  .price-range {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+
+    mat-form-field {
+      margin-bottom: 0;
+
+      ::ng-deep {
+        // Move only the placeholder (floating label) to the right
+        .mdc-floating-label {
+          left: 10px !important; // Adjust as needed
+        }
+      }
+    }
+
+    @media (min-width: 1280px) {
+      gap: 2rem;
+    }
+  }
+}
+
+// Make the filters sticky on larger screens
+@media (min-width: 960px) {
+  :host {
+    position: sticky;
+    top: 1rem;
+    z-index: 1;
+    height: calc(100vh - 2rem);
+    display: block;
+  }
+}

@@ -1,1 +1,42 @@
-<div>Cars</div>
+<div class="car-list">
+  <div *ngIf="vehicles.length > 0; else noVehicles" class="car-grid">
+    <mat-card *ngFor="let car of vehicles" class="car-card">
+      <img
+        mat-card-image
+        [src]="car.imageUrl"
+        alt="{{ car.make }} {{ car.model }}"
+        class="car-img"
+      />
+      <mat-card-content>
+        <h2 class="car-title">{{ car.make }} {{ car.model }}</h2>
+        <mat-divider></mat-divider>
+        <div class="car-details">
+          <p><strong>Body Type:</strong> {{ car.body }}</p>
+          <p><strong>Price:</strong> R {{ car.price | number }}</p>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="addToCart(car)"
+          [disabled]="isInCart(car.id)"
+          [matTooltip]="isInCart(car.id) ? 'Already in cart' : 'Add to Cart'"
+        >
+          <mat-icon>{{
+            isInCart(car.id) ? "shopping_cart" : "add_shopping_cart"
+          }}</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <ng-template #noVehicles>
+    <mat-card class="no-results">
+      <mat-card-content>
+        <mat-icon>search_off</mat-icon>
+        <p>No vehicles match your filter criteria.</p>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
+</div>
