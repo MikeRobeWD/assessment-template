@@ -3,10 +3,13 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { Vehicle, VehicleFilters, SelectedFilters } from '@types';
 
 @Component({
@@ -14,7 +17,7 @@ import { Vehicle, VehicleFilters, SelectedFilters } from '@types';
   templateUrl: './filters.component.html',
   styleUrl: './filters.component.scss',
 })
-export class FiltersComponent implements OnChanges {
+export class FiltersComponent implements OnChanges, OnInit, OnDestroy {
   @Input() public vehicles!: Vehicle[];
   @Output() public filterChanged = new EventEmitter<SelectedFilters>();
 
@@ -24,6 +27,7 @@ export class FiltersComponent implements OnChanges {
   };
 
   public filterForm: FormGroup;
+  private destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
@@ -37,17 +41,24 @@ export class FiltersComponent implements OnChanges {
 
     // Initialize with default values
     this.emitCurrentFilters();
+  }
 
-    // Subscribe to form changes
-    this.filterForm.valueChanges.subscribe(() => {
-      this.emitCurrentFilters();
-    });
+  ngOnInit() {
+    // Subscribe to form changes with proper cleanup
+    this.filterForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.emitCurrentFilters());
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['vehicles'] && this.vehicles) {
       this.initializeFilters();
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private emitCurrentFilters() {

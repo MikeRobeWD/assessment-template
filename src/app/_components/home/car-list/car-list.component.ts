@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { VehicleWithId } from '@types';
 import { HomeService } from '../../../_services/home.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, switchMap } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../../../_store/app.state';
 import { selectCartId } from '../../../_store/cart/cart.selectors';
@@ -24,19 +24,16 @@ export class CarListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Subscribe to cart changes
+    // Subscribe to cart changes using switchMap to handle the nested subscription
     this.store
-      .pipe(select(selectCartId), takeUntil(this.destroy$))
-      .subscribe((cartId) => {
-        if (cartId) {
-          this.homeService
-            .getCart()
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((cart) => {
-              if (cart) {
-                this.cartItems = cart.items || [];
-              }
-            });
+      .pipe(
+        select(selectCartId),
+        switchMap((cartId) => (cartId ? this.homeService.getCart() : [])),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((cart) => {
+        if (cart) {
+          this.cartItems = cart.items || [];
         }
       });
   }

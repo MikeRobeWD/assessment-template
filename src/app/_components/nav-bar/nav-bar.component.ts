@@ -12,6 +12,9 @@ import {
   switchMap,
   takeUntil,
   tap,
+  of,
+  BehaviorSubject,
+  share,
 } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import { MatListModule } from '@angular/material/list';
@@ -43,9 +46,9 @@ import { setCartId } from '../../_store/cart/cart.actions';
 })
 export class NavBarComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  public cartId$: Observable<string | null>;
-  public cart: string[] = [];
-  public cartVehicles: VehicleWithId[] = [];
+  private cartId$: Observable<string | null>;
+  private cart$ = new BehaviorSubject<string[]>([]);
+  public cartVehicles$: Observable<VehicleWithId[]>;
   public formatToCurrency = formatToCurrency;
   private currentCartId: string | null = null;
 
@@ -55,59 +58,56 @@ export class NavBarComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {
     this.cartId$ = this.store.pipe(select(selectCartId));
+
+    // Initialize the cart vehicles stream
+    const cart$ = this.cartId$.pipe(
+      filter((cartId): cartId is string => cartId !== null),
+      tap((cartId) => (this.currentCartId = cartId)),
+      switchMap(() => this.homeService.getCart()),
+      filter((cart): cart is Cart & { id: string } => cart !== undefined),
+      tap(this.handleCartUpdate.bind(this)),
+      share()
+    );
+
+    this.cartVehicles$ = cart$.pipe(
+      switchMap((cart) =>
+        cart.items.length > 0
+          ? this.homeService.getVehiclesByIds(cart.items)
+          : of([])
+      ),
+      takeUntil(this.destroy$),
+      share()
+    );
   }
 
   ngOnInit() {
-    // Check for existing cart in session storage
+    // Check for existing cart in session storage and dispatch if found
+    this.initializeExistingCart();
+  }
+
+  private initializeExistingCart(): void {
     const existingCartId = sessionStorage.getItem('cartId');
     if (existingCartId) {
       this.store.dispatch(setCartId({ cartId: existingCartId }));
     }
+  }
 
-    // Subscribe to cart changes
-    this.cartId$
-      .pipe(
-        filter((cartId): cartId is string => cartId !== null),
-        tap((cartId) => (this.currentCartId = cartId)),
-        switchMap(() =>
-          this.homeService.getCart().pipe(
-            filter((cart): cart is Cart & { id: string } => cart !== undefined),
-            tap((cart) => {
-              // Update session storage if cart ID has changed
-              if (cart.id !== this.currentCartId) {
-                sessionStorage.setItem('cartId', cart.id);
-                this.store.dispatch(setCartId({ cartId: cart.id }));
-              }
-              this.cart = cart.items;
-              if (cart.items.length === 0) {
-                this.cartVehicles = [];
-              }
-            }),
-            switchMap((cart) =>
-              cart.items.length > 0
-                ? this.homeService.getVehiclesByIds(cart.items)
-                : []
-            )
-          )
-        ),
-        tap((vehicles) => {
-          this.cartVehicles = vehicles;
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe();
+  private handleCartUpdate(cart: Cart & { id: string }): void {
+    if (cart.id !== this.currentCartId) {
+      sessionStorage.setItem('cartId', cart.id);
+      this.store.dispatch(setCartId({ cartId: cart.id }));
+    }
+    this.cart$.next(cart.items);
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.cart$.complete();
   }
 
-  calculateTotal(): number {
-    return this.cartVehicles.reduce(
-      (total, vehicle) => total + vehicle.price,
-      0
-    );
+  calculateTotal(vehicles: VehicleWithId[]): number {
+    return vehicles.reduce((total, vehicle) => total + vehicle.price, 0);
   }
 
   async removeFromCart(vehicle: VehicleWithId) {

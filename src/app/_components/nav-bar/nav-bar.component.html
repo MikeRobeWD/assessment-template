@@ -3,8 +3,8 @@
     <div class="cart-container">
       <button mat-icon-button aria-label="cart" [matMenuTriggerFor]="menu">
         <mat-icon>shopping_cart</mat-icon>
-        <span class="cart-count" *ngIf="cartVehicles.length > 0">{{
-          cartVehicles.length
+        <span class="cart-count" *ngIf="(cartVehicles$ | async)?.length">{{
+          (cartVehicles$ | async)?.length
         }}</span>
       </button>
       <mat-menu #menu="matMenu" class="cart-menu">
@@ -12,31 +12,33 @@
           <h3>Cart</h3>
           <mat-divider></mat-divider>
 
-          <ng-container *ngIf="cartVehicles.length > 0; else emptyCart">
-            <mat-list>
-              <mat-list-item *ngFor="let vehicle of cartVehicles">
-                <div class="cart-item">
-                  <div class="cart-item-details">
-                    <h4>{{ vehicle.make }} {{ vehicle.model }}</h4>
-                    <span class="price">R {{ vehicle.price | number }}</span>
+          <ng-container *ngIf="cartVehicles$ | async as vehicles">
+            <ng-container *ngIf="vehicles.length > 0; else emptyCart">
+              <mat-list>
+                <mat-list-item *ngFor="let vehicle of vehicles">
+                  <div class="cart-item">
+                    <div class="cart-item-details">
+                      <h4>{{ vehicle.make }} {{ vehicle.model }}</h4>
+                      <span class="price">R {{ vehicle.price | number }}</span>
+                    </div>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      (click)="removeFromCart(vehicle)"
+                    >
+                      <mat-icon>close</mat-icon>
+                    </button>
                   </div>
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    (click)="removeFromCart(vehicle)"
-                  >
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              </mat-list-item>
-            </mat-list>
+                </mat-list-item>
+              </mat-list>
 
-            <mat-divider></mat-divider>
+              <mat-divider></mat-divider>
 
-            <div class="cart-total">
-              <span>Total:</span>
-              <strong>R {{ calculateTotal() | number }}</strong>
-            </div>
+              <div class="cart-total">
+                <span>Total:</span>
+                <strong>R {{ calculateTotal(vehicles) | number }}</strong>
+              </div>
+            </ng-container>
           </ng-container>
 
           <ng-template #emptyCart>
