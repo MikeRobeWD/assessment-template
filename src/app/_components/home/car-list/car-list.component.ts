@@ -1,41 +1,41 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { VehicleWithId } from '@types';
 import { HomeService } from '../../../_services/home.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil, switchMap } from 'rxjs';
+import { Subject, switchMap, Observable, map, shareReplay } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../../../_store/app.state';
 import { selectCartId } from '../../../_store/cart/cart.selectors';
+
+interface Cart {
+  items: string[];
+}
 
 @Component({
   selector: 'app-car-list',
   templateUrl: './car-list.component.html',
   styleUrl: './car-list.component.scss',
 })
-export class CarListComponent implements OnInit, OnDestroy {
+export class CarListComponent implements OnDestroy {
   @Input() vehicles: VehicleWithId[] = [];
   private destroy$ = new Subject<void>();
-  public cartItems: string[] = [];
+  readonly cartItems$: Observable<Cart>;
 
   constructor(
     private homeService: HomeService,
     private snackBar: MatSnackBar,
     private store: Store<AppState>
-  ) {}
-
-  ngOnInit() {
-    // Subscribe to cart changes using switchMap to handle the nested subscription
-    this.store
-      .pipe(
-        select(selectCartId),
-        switchMap((cartId) => (cartId ? this.homeService.getCart() : [])),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((cart) => {
-        if (cart) {
-          this.cartItems = cart.items || [];
-        }
-      });
+  ) {
+    this.cartItems$ = this.store.pipe(
+      select(selectCartId),
+      switchMap((cartId) =>
+        cartId
+          ? this.homeService.getCart()
+          : Promise.resolve({ items: [] } as Cart)
+      ),
+      map((cart) => ({ items: cart?.items || [] })),
+      shareReplay(1)
+    );
   }
 
   ngOnDestroy() {
@@ -43,8 +43,8 @@ export class CarListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  isInCart(vehicleId: string): boolean {
-    return this.cartItems.includes(vehicleId);
+  isInCart(vehicleId: string): Observable<boolean> {
+    return this.cartItems$.pipe(map((cart) => cart.items.includes(vehicleId)));
   }
 
   async addToCart(vehicle: VehicleWithId) {

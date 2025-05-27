@@ -1,63 +1,66 @@
 // .mat-mdc-form-field {}
 
+// Hide number input spinners
+.no-spinner {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
 .filters-container {
-  padding: 2rem;
-  height: 100%;
+  padding: 24px;
   box-sizing: border-box;
+  width: 100%;
 
   @media (max-width: 599px) {
-    padding: 1.5rem;
-    margin-bottom: 0.5rem;
+    padding: 16px;
   }
 
   h3 {
-    margin: 0 0 2rem;
-    font-size: 1.5rem;
-    color: #333;
-    font-weight: 500;
+    color: var(--mdc-theme-on-surface, #333);
+    font-family: var(--mdc-typography-headline6-font-family, Roboto);
+    font-size: var(--mdc-typography-headline6-font-size, 1.25rem);
+    font-weight: var(--mdc-typography-headline6-font-weight, 500);
+    line-height: var(--mdc-typography-headline6-line-height, 2rem);
+    margin: 0 0 24px;
+    text-align: center;
 
     @media (max-width: 599px) {
-      margin: 0 0 1.5rem;
-      font-size: 1.25rem;
-      text-align: center;
+      margin: 0 0 16px;
     }
   }
 
   mat-form-field {
     width: 100%;
-    margin-bottom: 1.5rem;
+    margin-bottom: 16px;
 
     &:last-of-type {
       margin-bottom: 0;
     }
 
-    @media (max-width: 599px) {
-      margin-bottom: 1rem;
-    }
-
-    // Increase the size of select dropdowns and inputs
     ::ng-deep {
       .mat-mdc-text-field-wrapper {
-        background-color: #fff;
+        background-color: var(--mdc-filled-text-field-container-color, #fff);
       }
 
-      .mat-mdc-form-field-flex {
-        padding: 0 12px;
-      }
-
+      // Fix currency symbol spacing
       .mdc-text-field--outlined {
-        --mdc-outlined-text-field-container-height: 56px;
+        .mdc-notched-outline__leading {
+          width: 48px !important;
+        }
       }
 
-      // Fix currency symbol and input spacing
       .mat-mdc-form-field-prefix {
-        margin-right: 20px;
-        top: 0 !important;
+        margin-left: 24px !important;
+        margin-right: 12px !important;
       }
 
       // Style for the hint text
       .mat-mdc-form-field-hint {
-        padding-left: 8px;
+        font-size: var(--mdc-typography-caption-font-size, 0.75rem);
       }
     }
   }
@@ -65,22 +68,11 @@
   .price-range {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: 16px;
+    margin-top: 8px;
 
     mat-form-field {
       margin-bottom: 0;
-
-      ::ng-deep {
-        // Move only the placeholder (floating label) to the right
-        .mdc-floating-label {
-          left: 10px !important; // Adjust as needed
-        }
-      }
-    }
-
-    @media (min-width: 1280px) {
-      gap: 2rem;
     }
   }
 }
@@ -89,9 +81,13 @@
 @media (min-width: 960px) {
   :host {
     position: sticky;
-    top: 1rem;
+    top: 16px;
     z-index: 1;
-    height: calc(100vh - 2rem);
+    height: calc(100vh - 32px);
     display: block;
+
+    .filters-container {
+      height: 100%;
+    }
   }
 }

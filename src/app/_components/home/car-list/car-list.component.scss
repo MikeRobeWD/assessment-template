@@ -16,11 +16,6 @@
       grid-template-columns: repeat(2, 1fr); // 2 columns
     }
 
-    // Desktop (960px and up)
-    @media (min-width: 960px) {
-      grid-template-columns: repeat(2, 1fr); // 2 columns
-    }
-
     // Large Desktop (1280px and up)
     @media (min-width: 1280px) {
       grid-template-columns: repeat(3, 1fr); // 3 columns
@@ -46,8 +41,12 @@
     }
 
     .car-img {
-      height: 200px;
+      height: 180px;
       object-fit: cover;
+
+      @media (min-width: 600px) {
+        height: 200px;
+      }
 
       @media (max-width: 599px) {
         height: 180px; // Slightly smaller for mobile

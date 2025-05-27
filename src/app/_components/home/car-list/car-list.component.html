@@ -20,11 +20,13 @@
           mat-icon-button
           color="primary"
           (click)="addToCart(car)"
-          [disabled]="isInCart(car.id)"
-          [matTooltip]="isInCart(car.id) ? 'Already in cart' : 'Add to Cart'"
+          [disabled]="(isInCart(car.id) | async) === true"
+          [matTooltip]="
+            (isInCart(car.id) | async) ? 'Already in cart' : 'Add to Cart'
+          "
         >
           <mat-icon>{{
-            isInCart(car.id) ? "shopping_cart" : "add_shopping_cart"
+            (isInCart(car.id) | async) ? "shopping_cart" : "add_shopping_cart"
           }}</mat-icon>
         </button>
       </mat-card-actions>
